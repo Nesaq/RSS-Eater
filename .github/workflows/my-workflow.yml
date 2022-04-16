@@ -31,7 +31,7 @@ jobs:
       - name: npm install, build
         # Install and build project
         run: |
-          make install
+          make install-deps
           make build
         # Add environment variables
         env:

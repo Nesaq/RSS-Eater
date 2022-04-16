@@ -11,9 +11,9 @@ build:
 buildProd:
 	rm -rf dist
 	NODE_ENV=development npx webpack
-	
+
 lint: 
-	npx eslint.
+	npx eslint .
 
 test:
 	npm test

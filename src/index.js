@@ -1,6 +1,8 @@
 import 'bootstrap/dist/js/bootstrap.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import app from './app.js';
+// import i18next from 'i18next';
+// import ru from './locales/ru.js';
 
 // import i18next from 'i18next';
 // import ru from './locales/ru.js';
@@ -17,6 +19,4 @@ import app from './app.js';
 //   app(t);
 // });
 
-// const i18nInstance = i18next.createInstance();
-// app(i18nInstance);
 app();

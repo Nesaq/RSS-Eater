@@ -1,9 +1,9 @@
 export default {
-  translations: {
+  translation: {
     messages: {
       successAddingRss: 'RSS успешно загружен',
       rssExistError: 'RSS уже существует',
-      validationErrors: 'Ссылка должна быть валидным URL',
+      MyValidationErrors: 'Ссылка должна быть валидным URL',
       urlNotValid: 'Ресурс не содержит валидный RSS',
     },
   },

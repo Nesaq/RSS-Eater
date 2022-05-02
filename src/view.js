@@ -1,6 +1,16 @@
-import i18next from 'i18next';
 import onChange from 'on-change';
+
+import i18next from 'i18next';
 import ru from './locales/ru.js';
+
+const i18nInstance = i18next.createInstance();
+i18nInstance.init({
+  lng: 'ru',
+  debug: false,
+  resources: {
+    ru,
+  },
+});
 
 // тут будут представления постов, фидов, ошибок
 // создать для каждой задачи по "хэндлеру", который передадим в конечный рендер (watchedState?)
@@ -9,14 +19,6 @@ import ru from './locales/ru.js';
 // понять когда блокируем кнопку
 // ответить на вопрос нужно ли разблокировать кнопку после отправки данных во время валидации
 // проверить работает ли i18next , если передать инстанс в аргумент рендера - это неудобно
-
-const i18nInstance = i18next.createInstance();
-
-i18nInstance.init({
-  lng: 'ru',
-  debug: false,
-  resources: { ru },
-});
 
 const getElements = {
   form: document.querySelector('.rss-form'),
@@ -29,8 +31,10 @@ const {
   form, urlInput, feedback, button,
 } = getElements;
 
-const processStateHandler = (processState) => {
+const processStateHandler = (processState, state) => {
   switch (processState) {
+    case 'filling':
+      break;
     case 'sending':
       button.disabled = true;
       break;
@@ -39,24 +43,26 @@ const processStateHandler = (processState) => {
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
-      feedback.textContent = i18nInstance.t('successAddingRss');
+      feedback.textContent = i18nInstance.t(`messages.${state.form.textStatus}`);
+      // i18nInstance.t(`messages.${state.form.textStatus}`);
       form.reset();
       getElements.urlInput.focus();
       break;
     case 'error':
-      button.disabled = true;
+      button.disabled = false;
       break;
     default:
       throw new Error(`Wrong processState ${processState}`);
   }
 };
 
-const renderErrors = (error) => {
+const renderErrors = (error, state) => {
   if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
-    feedback.textContent = i18nInstance.t('validationErrors');
+    feedback.textContent = i18nInstance.t(`messages.${state.form.textStatus}`);
+    //  i18nInstance.t(`messages.${state.form.textStatus}`)
   }
 };
 
@@ -79,6 +85,5 @@ const render = (state) => (path, value) => {
 const watchedState = (state) => onChange(state, render(state));
 
 export default watchedState;
-
 
 // https://ru.hexlet.io/courses/js-frontend-architecture/lessons/i18n/theory_unit

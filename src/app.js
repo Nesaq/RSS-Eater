@@ -1,7 +1,10 @@
 import * as yup from 'yup';
 // import i18next from 'i18next';
+import axios from 'axios';
 import watcher from './view.js';
+
 // import ru from './locales/ru.js';
+// const i18nInstance = i18next.createInstance();
 
 const app = (i18nInstance) => {
   const state = {
@@ -10,9 +13,9 @@ const app = (i18nInstance) => {
       textStatus: '',
     },
     feeds: [],
+    posts: [],
   };
 
-  // const i18nInstance = i18next.createInstance();
   const watchedState = watcher(state);
 
   yup.setLocale({
@@ -31,8 +34,9 @@ const app = (i18nInstance) => {
     watchedState.form.processState = 'filling';
     const formData = new FormData(e.target);
     const url = formData.get('url');
+    watchedState.feeds.push(url);
 
-    console.log(url);
+    // console.log(url);
     const schema = yup
       .string()
       .url()
@@ -40,13 +44,13 @@ const app = (i18nInstance) => {
 
     schema.validate(url)
       .then(() => {
-        watchedState.form.processState = 'finished';
+        watchedState.form.processState = 'good';
         watchedState.form.textStatus = 'successAddingRss';
-        watchedState.feeds.push(url);
       })
       .catch((err) => {
         console.log(i18nInstance);
         const [{ key }] = err.errors;
+        // console.log(key);
         watchedState.form.processState = 'error';
         watchedState.form.textStatus = key;
       });

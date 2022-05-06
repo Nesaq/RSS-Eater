@@ -1,5 +1,4 @@
 import onChange from 'on-change';
-
 import i18next from 'i18next';
 import ru from './locales/ru.js';
 
@@ -16,8 +15,6 @@ i18nInstance.init({
 // создать для каждой задачи по "хэндлеру", который передадим в конечный рендер (watchedState?)
 // состо\яния: finished, sending, failed, filling,
 // попробовать обратиться напрямую к processState в switch
-// понять когда блокируем кнопку
-// ответить на вопрос нужно ли разблокировать кнопку после отправки данных во время валидации
 // проверить работает ли i18next , если передать инстанс в аргумент рендера - это неудобно
 
 const getElements = {
@@ -25,25 +22,27 @@ const getElements = {
   urlInput: document.getElementById('url-input'),
   feedback: document.querySelector('.feedback'),
   button: document.querySelector('button[aria-label=add]'),
+  feeds: document.querySelector('.feeds'),
+  posts: document.querySelector('.posts'),
 };
 
 const {
   form, urlInput, feedback, button,
 } = getElements;
 
-const processStateHandler = (processState, state) => {
+const processStateHandler = (processState) => {
   switch (processState) {
     case 'filling':
       break;
     case 'sending':
       button.disabled = true;
       break;
-    case 'finished':
+    case 'good':
       button.disabled = false;
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
-      feedback.textContent = i18nInstance.t(`messages.${state.form.textStatus}`);
+      feedback.textContent = i18nInstance.t('messages.successAddingRss');
       // i18nInstance.t(`messages.${state.form.textStatus}`);
       form.reset();
       getElements.urlInput.focus();
@@ -57,13 +56,41 @@ const processStateHandler = (processState, state) => {
 };
 
 const renderErrors = (error, state) => {
-  if (error !== '') {
+  if (error === 'MyValidationErrors') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
     feedback.textContent = i18nInstance.t(`messages.${state.form.textStatus}`);
     //  i18nInstance.t(`messages.${state.form.textStatus}`)
   }
+};
+
+const feedsRender = (feeds) => {
+  const feedsCard = document.createElement('div');
+  feedsCard.classList.add('card', 'border-0');
+  getElements.posts.prepend(feedsCard);
+
+  const titleDiv = document.createElement('div');
+  titleDiv.classList.add('card-body');
+  feedsCard.append(titleDiv);
+
+  const h2El = document.createElement('h2');
+  h2El.classList.add('card-title', 'h4');
+  h2El.textContent = i18nInstance.t('messages.feeds');
+  titleDiv.append(h2El);
+
+  const listUL = document.createElement('ul');
+  listUL.classList.add('list-group', 'border-0', 'rounded-0');
+
+  feeds.forEach((feed) => {
+    const liList = document.createElement('li');
+    liList.innerHTML = `
+    <h3 class="h6 m-0">${feed.title}</h3>
+    <p class="m-0 small text-black-50">${feed.description}</p>
+    `;
+    listUL.prepend(liList);
+  });
+  titleDiv.append(listUL);
 };
 
 const render = (state) => (path, value) => {
@@ -73,10 +100,13 @@ const render = (state) => (path, value) => {
 
   switch (path) {
     case 'form.processState':
-      processStateHandler(value, state, getElements);
+      processStateHandler(value, state);
       break;
     case 'form.textStatus':
-      renderErrors(value, state, getElements);
+      renderErrors(value, state);
+      break;
+    case 'feeds':
+      feedsRender(value, state);
       break;
     default:
       throw new Error(`Wrong path: ${path}`);

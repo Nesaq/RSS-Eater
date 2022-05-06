@@ -5,6 +5,7 @@ export default {
       rssExistError: 'RSS уже существует',
       MyValidationErrors: 'Ссылка должна быть валидным URL',
       urlNotValid: 'Ресурс не содержит валидный RSS',
+      netError: 'Ошибка сети',
     },
   },
 };

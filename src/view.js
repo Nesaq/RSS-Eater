@@ -37,7 +37,7 @@ const processStateHandler = (processState) => {
     case 'sending':
       button.disabled = true;
       break;
-    case 'good':
+    case 'goodCase':
       button.disabled = false;
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
@@ -68,7 +68,7 @@ const renderErrors = (error, state) => {
 const feedsRender = (feeds) => {
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
-  getElements.posts.prepend(feedsCard);
+  getElements.feeds.prepend(feedsCard);
 
   const titleDiv = document.createElement('div');
   titleDiv.classList.add('card-body');
@@ -84,13 +84,46 @@ const feedsRender = (feeds) => {
 
   feeds.forEach((feed) => {
     const liList = document.createElement('li');
-    liList.innerHTML = `
-    <h3 class="h6 m-0">${feed.title}</h3>
-    <p class="m-0 small text-black-50">${feed.description}</p>
-    `;
+    liList.classList.add('list-group-item', 'border-0', 'border-end-0');
+
+    const h3El = document.createElement('h3');
+    h3El.classList.add('h6', 'm-0');
+    h3El.textContent = feed.description;
+    liList.append(h3El);
+
     listUL.prepend(liList);
   });
   titleDiv.append(listUL);
+};
+
+const postsRender = (posts) => {
+  const postsDiv = document.createElement('div');
+  postsDiv.classList.add('card', 'border-0');
+  getElements.posts.prepend(postsDiv);
+
+  const divTitle = document.createElement('div');
+  divTitle.classList.add('card-body');
+  postsDiv.append(divTitle);
+
+  const h2El = document.createElement('h2');
+  h2El.classList.add('card-title', 'h4');
+  h2El.textContent = i18nInstance.t('messages.posts');
+  divTitle.prepend(h2El);
+
+  const ulList = document.createElement('ul');
+  ulList.classList.add('list-group', 'border-0', 'rounded-0');
+
+  posts.forEach((post) => {
+    const liList = document.createElement('li');
+    liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
+    const a = document.createElement('a');
+    a.setAttribute('href', post.url);
+    a.dataset.id = post.id;
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener noreferrer');
+    liList.append(a);
+  });
 };
 
 const render = (state) => (path, value) => {
@@ -107,6 +140,9 @@ const render = (state) => (path, value) => {
       break;
     case 'feeds':
       feedsRender(value, state);
+      break;
+    case 'posts':
+      postsRender(value, state);
       break;
     default:
       throw new Error(`Wrong path: ${path}`);

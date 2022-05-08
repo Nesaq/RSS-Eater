@@ -6,6 +6,8 @@ export default {
       MyValidationErrors: 'Ссылка должна быть валидным URL',
       urlNotValid: 'Ресурс не содержит валидный RSS',
       netError: 'Ошибка сети',
+      feeds: 'Фиды',
+      posts: 'Посты',
     },
   },
 };

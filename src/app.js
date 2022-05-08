@@ -44,7 +44,7 @@ const app = (i18nInstance) => {
 
     schema.validate(url)
       .then(() => {
-        watchedState.form.processState = 'good';
+        watchedState.form.processState = 'goodCase';
         watchedState.form.textStatus = 'successAddingRss';
       })
       .catch((err) => {

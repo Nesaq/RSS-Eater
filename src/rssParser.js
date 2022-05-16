@@ -3,19 +3,22 @@ import _ from 'lodash';
 const rssParser = (response) => {
   console.log(`response: ${response}`);
   const parser = new DOMParser();
-  const doc = parser.parseFromString();
-  const title = doc.querySelector('title');
-  const description = doc.querySelector('description');
+  const data = parser.parseFromString(response.data.contents, 'application/xml');
+  const title = data.querySelector('title');
+  const description = data.querySelector('description');
   const feed = {
     feedTitle: title.textContent,
     feedDesc: description.textContent,
     feedId: _.uniqueId('feed_'),
 
   };
-  const items = doc.querySelectorAll('item');
+  const items = data.querySelectorAll('item');
   const posts = Array.from(items).map((item) => {
+    console.log(item);
     const itemTitle = item.querySelector('title');
     const itemDesc = item.querySelector('description');
+    // console.log(itemTitle)
+    // console.log(itemDesc)
     const itemLink = item.querySelector('link');
     return {
       itemTitle: itemTitle.textContent,

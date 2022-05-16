@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 // import i18next from 'i18next';
 import axios from 'axios';
+import parser from './rssParser.js';
 import watcher from './view.js';
 
 // import ru from './locales/ru.js';
@@ -14,6 +15,10 @@ const app = (i18nInstance) => {
     },
     feeds: [],
     posts: [],
+    uiState: {
+      postsId: '',
+      text2: '',
+    },
   };
 
   const watchedState = watcher(state);
@@ -31,26 +36,36 @@ const app = (i18nInstance) => {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    watchedState.form.processState = 'filling';
     const formData = new FormData(e.target);
     const url = formData.get('url');
-    watchedState.feeds.push(url);
+    // state.feeds = url;
 
-    // console.log(url);
     const schema = yup
       .string()
       .url()
-      .notOneOf(watchedState.feeds);
+      .notOneOf(state.feeds);
 
     schema.validate(url)
       .then(() => {
-        watchedState.form.processState = 'goodCase';
-        watchedState.form.textStatus = 'successAddingRss';
+        state.feeds.push(url);
+        watchedState.form.processState = 'filling';
+        return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+          .then((response) => {
+            console.log(response);
+            const { feed, posts } = parser(response);
+            watchedState.feeds = state.feeds.concat(feed);
+            watchedState.posts = state.posts.concat(posts);
+            watchedState.form.processState = 'goodCase';
+          })
+          .catch((err) => {
+            watchedState.form.processState = 'error';
+            watchedState.form.textStatus = err.name;
+          });
       })
       .catch((err) => {
         console.log(i18nInstance);
         const [{ key }] = err.errors;
-        // console.log(key);
+        console.log(err.errors);
         watchedState.form.processState = 'error';
         watchedState.form.textStatus = key;
       });

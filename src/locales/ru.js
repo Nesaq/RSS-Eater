@@ -8,6 +8,7 @@ export default {
       netError: 'Ошибка сети',
       feeds: 'Фиды',
       posts: 'Посты',
+      view: 'Просмотр',
     },
   },
 };

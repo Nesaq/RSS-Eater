@@ -33,6 +33,7 @@ const {
 const processStateHandler = (processState) => {
   switch (processState) {
     case 'filling':
+      button.disabled = false;
       break;
     case 'sending':
       button.disabled = true;
@@ -49,19 +50,26 @@ const processStateHandler = (processState) => {
       break;
     case 'error':
       button.disabled = false;
+      // urlInput.classList.add('is-invalid');
+      // feedback.classList.remove('text-success');
+      // feedback.classList.add('text-danger');
+      // feedback.textContent = i18nInstance.t('messages.MyValidationErrors');
       break;
     default:
       throw new Error(`Wrong processState ${processState}`);
   }
 };
 
-const renderErrors = (error, state) => {
+const renderErrors = (error) => { // 2 param could be state
   if (error === 'MyValidationErrors') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
-    feedback.textContent = i18nInstance.t(`messages.${state.form.textStatus}`);
+    feedback.textContent = i18nInstance.t('messages.MyValidationErrors');
     //  i18nInstance.t(`messages.${state.form.textStatus}`)
+    // Любые тексты, которые выводятся в зависимости от
+    //  действий пользователя, не должны храниться в состоянии приложения.
+    // Эти тексты должны зависеть от состояния процессов:
   }
 };
 
@@ -118,12 +126,24 @@ const postsRender = (posts) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
+    // a.classList.add('fw-bold');
     a.setAttribute('href', post.url);
     a.dataset.id = post.id;
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     liList.append(a);
+
+    const buttonEl = document.createElement('button');
+    buttonEl.setAttribute('type', 'button');
+    buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    buttonEl.dataset.id = post.id;
+    buttonEl.dataset.bsToggle = 'modal';
+    buttonEl.dataset.bsTarget = '#modal';
+    buttonEl.textContent = i18nInstance.t('messages.view');
+    liList.append(buttonEl);
+    ulList.append(liList);
   });
+  postsDiv.append(ulList);
 };
 
 const render = (state) => (path, value) => {
@@ -133,16 +153,16 @@ const render = (state) => (path, value) => {
 
   switch (path) {
     case 'form.processState':
-      processStateHandler(value, state);
+      processStateHandler(value);
       break;
     case 'form.textStatus':
-      renderErrors(value, state);
+      renderErrors(value);
       break;
     case 'feeds':
-      feedsRender(value, state);
+      feedsRender(value);
       break;
     case 'posts':
-      postsRender(value, state);
+      postsRender(value);
       break;
     default:
       throw new Error(`Wrong path: ${path}`);
@@ -152,4 +172,4 @@ const watchedState = (state) => onChange(state, render(state));
 
 export default watchedState;
 
-// https://ru.hexlet.io/courses/js-frontend-architecture/lessons/i18n/theory_unit
+// // https://ru.hexlet.io/courses/js-frontend-architecture/lessons/i18n/theory_unit

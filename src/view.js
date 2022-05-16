@@ -96,8 +96,13 @@ const feedsRender = (feeds) => {
 
     const h3El = document.createElement('h3');
     h3El.classList.add('h6', 'm-0');
-    h3El.textContent = feed.description;
+    h3El.textContent = feed.feedTitle;
     liList.append(h3El);
+
+    const p = document.createElement('p');
+    p.classList.add('m-0', 'small', 'text-black-50');
+    p.textContent = feed.feedDesc;
+    liList.append(p);
 
     listUL.prepend(liList);
   });
@@ -115,7 +120,7 @@ const postsRender = (posts) => {
 
   const h2El = document.createElement('h2');
   h2El.classList.add('card-title', 'h4');
-  h2El.textContent = i18nInstance.t('messages.posts');
+  h2El.textContent = i18nInstance.t('messages.posts'); // фиды
   divTitle.prepend(h2El);
 
   const ulList = document.createElement('ul');
@@ -126,17 +131,18 @@ const postsRender = (posts) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
-    // a.classList.add('fw-bold');
-    a.setAttribute('href', post.url);
-    a.dataset.id = post.id;
+    a.classList.add('fw-bold');
+    a.setAttribute('data-id', post.itemId);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
+    a.href = post.itemLink;
+    a.textContent = post.itemTitle;
     liList.append(a);
 
     const buttonEl = document.createElement('button');
     buttonEl.setAttribute('type', 'button');
     buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    buttonEl.dataset.id = post.id;
+    buttonEl.dataset.id = post.itemId;
     buttonEl.dataset.bsToggle = 'modal';
     buttonEl.dataset.bsTarget = '#modal';
     buttonEl.textContent = i18nInstance.t('messages.view');

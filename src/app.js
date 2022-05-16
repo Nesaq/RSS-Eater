@@ -1,11 +1,10 @@
 import * as yup from 'yup';
-// import i18next from 'i18next';
+import i18next from 'i18next';
 import axios from 'axios';
 import parser from './rssParser.js';
 import watcher from './view.js';
 
-// import ru from './locales/ru.js';
-// const i18nInstance = i18next.createInstance();
+import ru from './locales/ru.js';
 
 const app = (i18nInstance) => {
   const state = {
@@ -72,4 +71,13 @@ const app = (i18nInstance) => {
   });
 };
 
-export default app;
+const runApp = () => {
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: ru,
+  }).then(() => app(i18nextInstance));
+};
+export default runApp;
+// export default app;

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const rssParser = (response) => {
-  console.log(`response: ${response}`);
+  console.dir(`response: ${response}`);
   const parser = new DOMParser();
   const data = parser.parseFromString(response.data.contents, 'application/xml');
   const title = data.querySelector('title');

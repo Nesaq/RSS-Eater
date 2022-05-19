@@ -4,7 +4,7 @@ export default {
       successAddingRss: 'RSS успешно загружен',
       rssExistError: 'RSS уже существует',
       MyValidationErrors: 'Ссылка должна быть валидным URL',
-      urlNotValid: 'Ресурс не содержит валидный RSS',
+      rssNotValid: 'Ресурс не содержит валидный RSS',
       netError: 'Ошибка сети',
       feeds: 'Фиды',
       posts: 'Посты',
@@ -12,3 +12,12 @@ export default {
     },
   },
 };
+
+// if (err.message === 'Ошибка сети') {
+//   watchedState.form.textStatus = 'netError';
+// } else if (err.message === 'NotValidRss') {
+//   watchedState.form.textStatus = 'rssNotValid';
+// } else {
+//   watchedState.form.textStatus = err.message;
+// }
+// watchedState.form.processState = 'error';

@@ -24,6 +24,11 @@ const getElements = {
   button: document.querySelector('button[aria-label=add]'),
   feeds: document.querySelector('.feeds'),
   posts: document.querySelector('.posts'),
+  modal: {
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    readButton: document.querySelector('.full-article'),
+  },
 };
 
 const {
@@ -120,7 +125,7 @@ const postsRender = (posts) => {
 
   const h2El = document.createElement('h2');
   h2El.classList.add('card-title', 'h4');
-  h2El.textContent = i18nInstance.t('messages.posts'); // фиды
+  h2El.textContent = i18nInstance.t('messages.posts');
   divTitle.prepend(h2El);
 
   const ulList = document.createElement('ul');
@@ -131,7 +136,6 @@ const postsRender = (posts) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
-    a.classList.add('fw-bold');
     a.setAttribute('data-id', post.itemId);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
@@ -152,6 +156,24 @@ const postsRender = (posts) => {
   postsDiv.append(ulList);
 };
 
+const renderModal = (post) => {
+  const title = getElements.modal.modalTitle;
+  const body = getElements.modal.modalBody;
+  body.classList.add('text-break');
+  const fullPost = getElements.modal.readButton;
+  title.textContent = post[0].itemTitle;
+  body.textContent = post[0].itemDesc;
+  fullPost.href = post[0].itemLink;
+};
+
+const renderReadPosts = (posts) => {
+  posts.forEach((postId) => {
+    const post = document.querySelector(`a[data-id="${postId}"]`);
+    post.classList.remove('fw-bold');
+    post.classList.add('fw-normal', 'link-secondary');
+  });
+};
+
 const render = (state) => (path, value) => {
   console.log(`path: ${path}`);
   console.log(`state: ${state}`);
@@ -169,6 +191,12 @@ const render = (state) => (path, value) => {
       break;
     case 'posts':
       postsRender(value);
+      break;
+    case 'modalPosts':
+      renderModal(value);
+      break;
+    case 'readPostsId':
+      renderReadPosts(value);
       break;
     default:
       throw new Error(`Wrong path: ${path}`);

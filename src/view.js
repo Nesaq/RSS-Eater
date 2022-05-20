@@ -160,9 +160,9 @@ const renderReadPosts = (posts) => {
 };
 
 const render = (state) => (path, value) => {
-  console.log(`path: ${path}`);
-  console.log(`state: ${state}`);
-  console.log(`value: ${value}`);
+  // console.log(`path: ${path}`);
+  // console.log(`state: ${state}`);
+  // console.log(`value: ${value}`);
 
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
@@ -187,7 +187,7 @@ const render = (state) => (path, value) => {
       postsRender(value, i18nInstance);
       break;
     case 'modalPosts':
-      renderModal(value);
+      renderModal(value, state);
       break;
     case 'readPostsId':
       renderReadPosts(value);

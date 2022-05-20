@@ -50,14 +50,6 @@ const app = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.form.incomingUrl = formData.get('url');
-    // const url = formData.get('url');
-    // state.form.incomingUrl(url);
-    // state.feeds = url;
-
-    // const schema = yup
-    //   .string()
-    //   .url()
-    //   .notOneOf();
 
     validateUrl(state.form.incomingUrl, state.form.urls)
       .then(() => {
@@ -73,15 +65,19 @@ const app = () => {
             watchedState.form.textStatus = '';
           })
           .catch((err) => {
+            console.log(err.name);
             watchedState.form.processState = 'error';
-            watchedState.form.textStatus = err.message;
+            watchedState.form.textStatus = err.message; // name
           });
       })
       .catch((err) => {
-        // const [{ key }] = err.name;
-        // console.log(err.name);
-        watchedState.form.textStatus = err.message;
+        // const [{ key }] = err.errors;
+        console.log(err.name); // ссылка должны быть валидным URL
+        // watchedState.form.processState = 'error';
+        // watchedState.form.textStatus = key;
         watchedState.form.processState = 'error';
+        watchedState.form.textStatus = err.message; // name
+        
       });
   });
   const contentUpdate = () => {
@@ -95,16 +91,19 @@ const app = () => {
             watchedState.posts = state.posts.concat(newPosts);
           })
           .catch((err) => {
-            // console.log(err.name);
-            // console.log(err.message);
-            watchedState.form.processState = 'error'; // error
-            watchedState.form.textStatus = err.message;
+            console.log(err.name);
+            console.log(err.message);
+            watchedState.form.processState = 'error';
+            watchedState.form.textStatus = err.message; //name
+            //messages.Cannot read properties of null (reading 'textContent')
+
           });
       });
       contentUpdate();
     }, timerForUpdates);
   };
   contentUpdate();
+
   const postEl = document.querySelector('.posts');
   postEl.addEventListener('click', (e) => {
     const readedLink = state.posts.filter(({ itemId }) => itemId === e.target.dataset.id);

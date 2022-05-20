@@ -1,10 +1,11 @@
 import * as yup from 'yup';
-// import i18next from 'i18next';
+import i18next from 'i18next';
 import axios from 'axios';
+import onChange from 'on-change';
 import parser from './rssParser.js';
-import watcher from './view.js';
+import render from './view.js';
 
-// import ru from './locales/ru.js';
+import ru from './locales/ru.js';
 
 const validateUrl = (incomingUrl, urls) => yup
   .string()
@@ -12,7 +13,7 @@ const validateUrl = (incomingUrl, urls) => yup
   .notOneOf(urls)
   .validate(incomingUrl);
 
-const app = () => {
+const app = (i18Instance) => {
   const state = {
     form: {
       processState: 'filling',
@@ -24,26 +25,40 @@ const app = () => {
     posts: [],
     readPostsId: [],
   };
+  const getElements = {
+    form: document.querySelector('.rss-form'),
+    urlInput: document.getElementById('url-input'),
+    feedback: document.querySelector('.feedback'),
+    button: document.querySelector('button[aria-label=add]'),
+    feeds: document.querySelector('.feeds'),
+    posts: document.querySelector('.posts'),
+    modal: {
+      modalTitle: document.querySelector('.modal-title'),
+      modalBody: document.querySelector('.modal-body'),
+      readButton: document.querySelector('.full-article'),
+    },
+  };
+  // const watchedState = watcher(state);
+  const watchedState = onChange(state, render(getElements, i18Instance, state));
 
-  const watchedState = watcher(state);
   const timerForUpdates = 5000;
 
-  // yup.setLocale({
-  //   string: {
-  //     url: () => ({ key: 'MyValidationErrors' }),
-  //   },
-  //   mixed: {
-  //     notOneOf: () => ({ key: 'rssExistError' }),
-  //   },
-  // });
   yup.setLocale({
-    mixed: {
-      notOneOf: 'rssExistError',
-    },
     string: {
-      url: 'MyValidationErrors',
+      url: () => ({ key: 'MyValidationErrors' }),
+    },
+    mixed: {
+      notOneOf: () => ({ key: 'rssExistError' }),
     },
   });
+  // yup.setLocale({
+  //   mixed: {
+  //     notOneOf: 'rssExistError',
+  //   },
+  //   string: {
+  //     url: 'MyValidationErrors',
+  //   },
+  // });
 
   const form = document.querySelector('.rss-form');
   form.addEventListener('submit', (e) => {
@@ -65,21 +80,22 @@ const app = () => {
             watchedState.form.textStatus = '';
           })
           .catch((err) => {
-            console.log(err.name);
+            // console.log(err.name);
             watchedState.form.processState = 'error';
-            watchedState.form.textStatus = err.message; // name
+            watchedState.form.textStatus = err.name; // name
           });
       })
       .catch((err) => {
-        // const [{ key }] = err.errors;
-        console.log(err.name); // ссылка должны быть валидным URL
+        const [{ key }] = err.errors;
+        console.log(key);
+        // console.log(err.name); // ссылка должны быть валидным URL
         // watchedState.form.processState = 'error';
         // watchedState.form.textStatus = key;
         watchedState.form.processState = 'error';
-        watchedState.form.textStatus = err.message; // name
-        
+        watchedState.form.textStatus = key; // name
       });
   });
+
   const contentUpdate = () => {
     setTimeout(() => {
       state.feeds.forEach(({ url }) => {
@@ -91,15 +107,14 @@ const app = () => {
             watchedState.posts = state.posts.concat(newPosts);
           })
           .catch((err) => {
-            console.log(err.name);
-            console.log(err.message);
+            // console.log(err.errors);
+            // console.log(err.name);
+            // console.log(err.message);
             watchedState.form.processState = 'error';
-            watchedState.form.textStatus = err.message; //name
-            //messages.Cannot read properties of null (reading 'textContent')
-
+            watchedState.form.textStatus = err.name; // name
+            // messages.Cannot read properties of null (reading 'textContent')
           });
       });
-      contentUpdate();
     }, timerForUpdates);
   };
   contentUpdate();
@@ -111,5 +126,17 @@ const app = () => {
     watchedState.readPostsId = state.readPostsId.concat(e.target.dataset.id);
   });
 };
+const runApp = () => {
+  const i18Instance = i18next.createInstance();
+  i18Instance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru,
+    },
+  }).then(() => app(i18Instance));
+};
 
-export default app;
+export default runApp;
+
+// export default app;

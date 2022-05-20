@@ -17,8 +17,6 @@ const rssParser = (response) => {
     console.log(item);
     const itemTitle = item.querySelector('title');
     const itemDesc = item.querySelector('description');
-    // console.log(itemTitle)
-    // console.log(itemDesc)
     const itemLink = item.querySelector('link');
     return {
       itemTitle: itemTitle.textContent,
@@ -31,5 +29,3 @@ const rssParser = (response) => {
 };
 
 export default rssParser;
-// `https://allorigins.hexlet.app/get?url=${encodeURIComponent('https://wikipedia.org')}`)
-// `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`;

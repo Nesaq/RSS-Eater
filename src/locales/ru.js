@@ -12,12 +12,3 @@ export default {
     },
   },
 };
-
-// if (err.message === 'Ошибка сети') {
-//   watchedState.form.textStatus = 'netError';
-// } else if (err.message === 'NotValidRss') {
-//   watchedState.form.textStatus = 'rssNotValid';
-// } else {
-//   watchedState.form.textStatus = err.message;
-// }
-// watchedState.form.processState = 'error';

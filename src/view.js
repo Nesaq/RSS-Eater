@@ -2,21 +2,6 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import ru from './locales/ru.js';
 
-const i18nInstance = i18next.createInstance();
-i18nInstance.init({
-  lng: 'ru',
-  debug: false,
-  resources: {
-    ru,
-  },
-});
-
-// тут будут представления постов, фидов, ошибок
-// создать для каждой задачи по "хэндлеру", который передадим в конечный рендер (watchedState?)
-// состо\яния: finished, sending, failed, filling,
-// попробовать обратиться напрямую к processState в switch
-// проверить работает ли i18next , если передать инстанс в аргумент рендера - это неудобно
-
 const getElements = {
   form: document.querySelector('.rss-form'),
   urlInput: document.getElementById('url-input'),
@@ -30,12 +15,12 @@ const getElements = {
     readButton: document.querySelector('.full-article'),
   },
 };
-
+// решить проблему с глобальными элементами
 const {
   form, urlInput, feedback, button,
 } = getElements;
 
-const processStateHandler = (processState) => {
+const processStateHandler = (processState, i18nInstance) => {
   switch (processState) {
     case 'filling':
       button.disabled = false;
@@ -65,12 +50,12 @@ const processStateHandler = (processState) => {
   }
 };
 
-const renderErrors = (error) => { // 2 param could be state
-  if (error === 'MyValidationErrors') {
+const renderErrors = (error, i18nInstance) => { // 2 param could be state
+  if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
-    feedback.textContent = i18nInstance.t('messages.MyValidationErrors');
+    feedback.textContent = i18nInstance.t(`messages.${error}`);
     //  i18nInstance.t(`messages.${state.form.textStatus}`)
     // Любые тексты, которые выводятся в зависимости от
     //  действий пользователя, не должны храниться в состоянии приложения.
@@ -78,7 +63,7 @@ const renderErrors = (error) => { // 2 param could be state
   }
 };
 
-const feedsRender = (feeds) => {
+const feedsRender = (feeds, i18nInstance) => {
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
   getElements.feeds.prepend(feedsCard);
@@ -114,7 +99,7 @@ const feedsRender = (feeds) => {
   titleDiv.append(listUL);
 };
 
-const postsRender = (posts) => {
+const postsRender = (posts, i18nInstance) => {
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
   getElements.posts.prepend(postsDiv);
@@ -136,11 +121,11 @@ const postsRender = (posts) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
+    a.href = post.itemLink;
+    a.textContent = post.itemTitle;
     a.setAttribute('data-id', post.itemId);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
-    a.href = post.itemLink;
-    a.textContent = post.itemTitle;
     liList.append(a);
 
     const buttonEl = document.createElement('button');
@@ -179,18 +164,27 @@ const render = (state) => (path, value) => {
   console.log(`state: ${state}`);
   console.log(`value: ${value}`);
 
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng: 'ru',
+    debug: false,
+    resources: {
+      ru,
+    },
+  });
+
   switch (path) {
     case 'form.processState':
-      processStateHandler(value);
+      processStateHandler(value, i18nInstance);
       break;
     case 'form.textStatus':
-      renderErrors(value);
+      renderErrors(value, i18nInstance);
       break;
     case 'feeds':
-      feedsRender(value);
+      feedsRender(value, i18nInstance);
       break;
     case 'posts':
-      postsRender(value);
+      postsRender(value, i18nInstance);
       break;
     case 'modalPosts':
       renderModal(value);

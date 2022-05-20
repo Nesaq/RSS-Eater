@@ -1,6 +1,6 @@
-// import onChange from 'on-change';
-// import i18next from 'i18next';
-// import ru from './locales/ru.js';
+import onChange from 'on-change';
+import i18next from 'i18next';
+import ru from './locales/ru.js';
 
 const getElements = {
   form: document.querySelector('.rss-form'),
@@ -15,47 +15,40 @@ const getElements = {
     readButton: document.querySelector('.full-article'),
   },
 };
-// решить проблему с глобальными элементами
+
 const {
   form, urlInput, feedback, button,
 } = getElements;
 
-const processStateHandler = (processState, i18Instance) => {
+const processStateHandler = (processState, i18nInstance) => {
   switch (processState) {
     case 'filling':
       button.disabled = false;
-      break;
-    case 'sending':
-      button.disabled = true;
       break;
     case 'goodCase':
       button.disabled = false;
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
-      feedback.textContent = i18Instance.t('messages.successAddingRss');
+      feedback.textContent = i18nInstance.t('messages.successAddingRss');
       // i18nInstance.t(`messages.${state.form.textStatus}`);
       form.reset();
       getElements.urlInput.focus();
       break;
     case 'error':
       button.disabled = false;
-      // urlInput.classList.add('is-invalid');
-      // feedback.classList.remove('text-success');
-      // feedback.classList.add('text-danger');
-      // feedback.textContent = i18nInstance.t('messages.MyValidationErrors');
       break;
     default:
       throw new Error(`Wrong processState ${processState}`);
   }
 };
 
-const renderErrors = (error, i18Instance) => { // 2 param could be state
+const renderErrors = (error, i18nInstance) => { // 3 param could be state
   if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
-    feedback.textContent = i18Instance.t(`messages.${error}`);
+    feedback.textContent = i18nInstance.t(`messages.${error}`);
     //  i18nInstance.t(`messages.${state.form.textStatus}`)
     // Любые тексты, которые выводятся в зависимости от
     //  действий пользователя, не должны храниться в состоянии приложения.
@@ -63,7 +56,7 @@ const renderErrors = (error, i18Instance) => { // 2 param could be state
   }
 };
 
-const feedsRender = (feeds, i18Instance) => {
+const feedsRender = (feeds, i18nInstance) => {
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
   getElements.feeds.prepend(feedsCard);
@@ -74,7 +67,7 @@ const feedsRender = (feeds, i18Instance) => {
 
   const h2El = document.createElement('h2');
   h2El.classList.add('card-title', 'h4');
-  h2El.textContent = i18Instance.t('messages.feeds');
+  h2El.textContent = i18nInstance.t('messages.feeds');
   titleDiv.append(h2El);
 
   const listUL = document.createElement('ul');
@@ -99,7 +92,7 @@ const feedsRender = (feeds, i18Instance) => {
   titleDiv.append(listUL);
 };
 
-const postsRender = (posts, i18Instance) => {
+const postsRender = (posts, i18nInstance) => {
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
   getElements.posts.prepend(postsDiv);
@@ -110,7 +103,7 @@ const postsRender = (posts, i18Instance) => {
 
   const h2El = document.createElement('h2');
   h2El.classList.add('card-title', 'h4');
-  h2El.textContent = i18Instance.t('messages.posts');
+  h2El.textContent = i18nInstance.t('messages.posts');
   divTitle.prepend(h2El);
 
   const ulList = document.createElement('ul');
@@ -134,7 +127,7 @@ const postsRender = (posts, i18Instance) => {
     buttonEl.dataset.id = post.itemId;
     buttonEl.dataset.bsToggle = 'modal';
     buttonEl.dataset.bsTarget = '#modal';
-    buttonEl.textContent = i18Instance.t('messages.view');
+    buttonEl.textContent = i18nInstance.t('messages.view');
     liList.append(buttonEl);
     ulList.append(liList);
   });
@@ -159,33 +152,29 @@ const renderReadPosts = (posts) => {
   });
 };
 
-const render = (state, i18Instance) => (path, value) => {
-  // console.log(`path: ${path}`);
-  // console.log(`state: ${state}`);
-  // console.log(`value: ${value}`);
+const render = (state) => (path, value) => {
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng: 'ru',
+    debug: false,
+    resources: {
+      ru,
+    },
+  });
+  // спросить у наставника об объявлении  i18 внутри рендера
 
-  // const i18nInstance = i18next.createInstance();
-  // i18nInstance.init({
-  //   lng: 'ru',
-  //   debug: false,
-  //   resources: {
-  //     ru,
-  //   },
-  // });
-  // спросить у наставника: будет ли каждый раз создаваться при рендере
-  // новый экземпляр при такой реализации
   switch (path) {
     case 'form.processState':
-      processStateHandler(value, i18Instance);
+      processStateHandler(value, i18nInstance);
       break;
     case 'form.textStatus':
-      renderErrors(value, i18Instance);
+      renderErrors(value, i18nInstance);
       break;
     case 'feeds':
-      feedsRender(value, i18Instance);
+      feedsRender(value, i18nInstance);
       break;
     case 'posts':
-      postsRender(value, i18Instance);
+      postsRender(value, i18nInstance);
       break;
     case 'modalPosts':
       renderModal(value, state);
@@ -197,9 +186,8 @@ const render = (state, i18Instance) => (path, value) => {
       throw new Error(`Wrong path: ${path}`);
   }
 };
-// const watchedState = (state) => onChange(state, render(state));
+const watchedState = (state) => onChange(state, render(state));
 
-// export default watchedState;
-export default render;
+export default watchedState;
 
 // // https://ru.hexlet.io/courses/js-frontend-architecture/lessons/i18n/theory_unit

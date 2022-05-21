@@ -57,6 +57,7 @@ const renderErrors = (error, i18nInstance) => { // 3 param could be state
 };
 
 const feedsRender = (feeds, i18nInstance) => {
+  getElements.feeds.innerHTML = '';
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
   getElements.feeds.prepend(feedsCard);
@@ -93,6 +94,7 @@ const feedsRender = (feeds, i18nInstance) => {
 };
 
 const postsRender = (posts, i18nInstance) => {
+  getElements.posts.innerHTML = '';
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
   getElements.posts.prepend(postsDiv);

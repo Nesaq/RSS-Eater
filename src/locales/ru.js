@@ -3,7 +3,8 @@ export default {
     messages: {
       successAddingRss: 'RSS успешно загружен',
       rssExistError: 'RSS уже существует',
-      MyValidationErrors: 'Ссылка должна быть валидным URL',
+      notValidUrl: 'Ссылка должна быть валидным URL',
+      fieldRequired: 'Не должно быть пустым',
       TypeError: 'Ресурс не содержит валидный RSS',
       Error: 'Ошибка сети',
       feeds: 'Фиды',

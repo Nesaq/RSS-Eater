@@ -14,7 +14,6 @@ const rssParser = (response) => {
   };
   const items = data.querySelectorAll('item');
   const posts = Array.from(items).map((item) => {
-    console.log(item);
     const itemTitle = item.querySelector('title');
     const itemDesc = item.querySelector('description');
     const itemLink = item.querySelector('link');

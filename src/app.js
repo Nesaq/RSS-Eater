@@ -5,6 +5,7 @@ import watcher from './view.js';
 
 const validateUrl = (incomingUrl, urls) => yup
   .string()
+  .required()
   .url()
   .notOneOf(urls)
   .validate(incomingUrl);
@@ -27,10 +28,11 @@ const app = () => {
 
   yup.setLocale({
     string: {
-      url: () => ({ key: 'MyValidationErrors' }),
+      url: () => ({ key: 'notValidUrl' }),
     },
     mixed: {
       notOneOf: () => ({ key: 'rssExistError' }),
+      required: () => ({ key: 'fieldRequired' }),
     },
   });
 
@@ -76,8 +78,11 @@ const app = () => {
             contentUpdate();
           })
           .catch((err) => {
+            console.log(err);
             watchedState.form.processState = 'error';
             watchedState.form.textStatus = err.name;
+            // TypeError:
+            // Cannot read properties of null (reading 'textContent')
           });
       });
     }, timerForUpdates);

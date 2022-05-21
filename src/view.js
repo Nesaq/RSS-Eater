@@ -100,7 +100,7 @@ const feedsRender = (feeds, i18nInstance) => {
   titleDiv.append(listUL);
 };
 
-const postsRender = (posts, i18nInstance) => {
+const postsRender = (posts, state, i18nInstance) => {
   getElements.posts.innerHTML = '';
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
@@ -123,6 +123,12 @@ const postsRender = (posts, i18nInstance) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
+    if (state.readedPostsId.includes(post.itemId)) {
+      a.classList.add('fw-normal', 'link-secondary');
+    } else {
+      a.classList.add('fw-bold');
+    }
+
     a.href = post.itemLink;
     a.textContent = post.itemTitle;
     a.setAttribute('data-id', post.itemId);
@@ -156,7 +162,7 @@ const renderModal = (post) => {
 const renderReadPosts = (posts) => {
   posts.forEach((postId) => {
     const post = document.querySelector(`a[data-id="${postId}"]`);
-    // post.classList.remove('fw-bold');
+    post.classList.remove('fw-bold');
     post.classList.add('fw-normal', 'link-secondary');
   });
 };
@@ -183,7 +189,7 @@ const render = (state) => (path, value) => {
       feedsRender(value, i18nInstance);
       break;
     case 'posts':
-      postsRender(value, i18nInstance);
+      postsRender(value, state, i18nInstance);
       break;
     case 'modalPosts':
       renderModal(value, state);

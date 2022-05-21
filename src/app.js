@@ -20,7 +20,7 @@ const app = () => {
     },
     feeds: [],
     posts: [],
-    readPostsId: [],
+    readedPostsId: [],
   };
 
   const watchedState = watcher(state);
@@ -99,7 +99,7 @@ const app = () => {
   postEl.addEventListener('click', (e) => {
     const readedLink = state.posts.filter(({ itemId }) => itemId === e.target.dataset.id);
     watchedState.modalPosts = readedLink;
-    watchedState.readPostsId = state.readPostsId.concat(e.target.dataset.id);
+    watchedState.readPostsId = state.readedPostsId.concat(e.target.dataset.id);
   });
 };
 

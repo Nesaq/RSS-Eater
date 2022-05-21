@@ -1,9 +1,9 @@
 import * as path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-// import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 
-// const filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(filename);
+const filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(filename);
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -12,7 +12,7 @@ export default {
   entry: './src/index.js',
   output: {
     filename: 'main.js',
-    path: path.resolve('./', 'dist'),
+    path: path.resolve(__dirname, 'dist'),
   },
   module: {
     rules: [

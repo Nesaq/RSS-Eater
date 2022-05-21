@@ -5,7 +5,7 @@ export default {
       rssExistError: 'RSS уже существует',
       MyValidationErrors: 'Ссылка должна быть валидным URL',
       TypeError: 'Ресурс не содержит валидный RSS',
-      netError: 'Ошибка сети',
+      Error: 'Ошибка сети',
       feeds: 'Фиды',
       posts: 'Посты',
       view: 'Просмотр',

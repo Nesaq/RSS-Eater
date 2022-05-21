@@ -156,7 +156,7 @@ const renderModal = (post) => {
 const renderReadPosts = (posts) => {
   posts.forEach((postId) => {
     const post = document.querySelector(`a[data-id="${postId}"]`);
-    post.classList.remove('fw-bold');
+    // post.classList.remove('fw-bold');
     post.classList.add('fw-normal', 'link-secondary');
   });
 };

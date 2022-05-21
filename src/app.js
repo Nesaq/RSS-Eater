@@ -53,7 +53,7 @@ const app = () => {
             watchedState.form.textStatus = '';
           })
           .catch((err) => {
-            console.log(err.name);
+            // console.log(err.name);
             watchedState.form.processState = 'error';
             watchedState.form.textStatus = err.name;
           });
@@ -73,6 +73,7 @@ const app = () => {
             const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
             const newPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink));
             watchedState.posts = state.posts.concat(newPosts);
+            contentUpdate();
           })
           .catch((err) => {
             watchedState.form.processState = 'error';

@@ -6,7 +6,7 @@ export default {
       notValidUrl: 'Ссылка должна быть валидным URL',
       fieldRequired: 'Не должно быть пустым',
       TypeError: 'Ресурс не содержит валидный RSS',
-      Error: 'Ошибка сети',
+      AxiosError: 'Ошибка сети',
       feeds: 'Фиды',
       posts: 'Посты',
       view: 'Просмотр',

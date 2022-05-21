@@ -5,9 +5,9 @@ import watcher from './view.js';
 
 const validateUrl = (incomingUrl, urls) => yup
   .string()
-  .required()
   .url()
   .notOneOf(urls)
+  .required()
   .validate(incomingUrl);
 
 const app = () => {
@@ -41,27 +41,30 @@ const app = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.form.incomingUrl = formData.get('url');
+    watchedState.form.processState = 'pending';
 
     validateUrl(state.form.incomingUrl, state.form.urls)
       .then(() => {
         state.form.urls.push(state.form.incomingUrl);
-        watchedState.form.processState = 'filling';
         return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(state.form.incomingUrl)}`)
           .then((response) => {
             const { feed, posts } = parser(response);
-            watchedState.feeds = state.feeds.concat(feed);
             watchedState.posts = state.posts.concat(posts);
+            watchedState.feeds = state.feeds.concat(feed);
             watchedState.form.processState = 'goodCase';
             watchedState.form.textStatus = '';
           })
           .catch((err) => {
-            // console.log(err.name);
+            console.log(err);
+            console.log(err.message);
             watchedState.form.processState = 'error';
             watchedState.form.textStatus = err.name;
           });
       })
       .catch((err) => {
+        console.log(err);
         const [{ key }] = err.errors;
+        console.log(key);
         watchedState.form.processState = 'error';
         watchedState.form.textStatus = key;
       });
@@ -75,16 +78,19 @@ const app = () => {
             const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
             const newPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink));
             watchedState.posts = state.posts.concat(newPosts);
+            console.log(watchedState.posts);
             contentUpdate();
           })
           .catch((err) => {
             console.log(err);
+            // console.log(err.name);
             watchedState.form.processState = 'error';
             watchedState.form.textStatus = err.name;
             // TypeError:
             // Cannot read properties of null (reading 'textContent')
           });
       });
+      // contentUpdate();
     }, timerForUpdates);
   };
   contentUpdate();

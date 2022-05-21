@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
 const rssParser = (response) => {
-  // console.dir(`response: ${response}`);
   const parser = new DOMParser();
   const data = parser.parseFromString(response.data.contents, 'application/xml');
   const title = data.querySelector('title');
@@ -10,8 +9,8 @@ const rssParser = (response) => {
     feedTitle: title.textContent,
     feedDesc: description.textContent,
     feedId: _.uniqueId('feed_'),
-
   };
+  console.log(feed);
   const items = data.querySelectorAll('item');
   const posts = Array.from(items).map((item) => {
     const itemTitle = item.querySelector('title');

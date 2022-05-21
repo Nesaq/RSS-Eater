@@ -25,8 +25,14 @@ const processStateHandler = (processState, i18nInstance) => {
     case 'filling':
       button.disabled = false;
       break;
+    case 'pending':
+      button.disabled = true;
+      urlInput.removeAttribute('readonly');
+      urlInput.focus();
+      break;
     case 'goodCase':
       button.disabled = false;
+      urlInput.removeAttribute('readonly');
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
@@ -37,6 +43,7 @@ const processStateHandler = (processState, i18nInstance) => {
       break;
     case 'error':
       button.disabled = false;
+      urlInput.removeAttribute('readonly');
       break;
     default:
       throw new Error(`Wrong processState ${processState}`);

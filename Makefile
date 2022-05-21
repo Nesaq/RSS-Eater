@@ -1,7 +1,7 @@
 develop:
 	npx webpack serve
 	
-install-deps:
+install:
 	npm ci
 	
 build:

@@ -30,14 +30,13 @@ const processStateHandler = (processState, i18nInstance) => {
       urlInput.removeAttribute('readonly');
       urlInput.focus();
       break;
-    case 'goodCase':
+    case 'added':
       button.disabled = false;
       urlInput.removeAttribute('readonly');
       urlInput.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
       feedback.textContent = i18nInstance.t('messages.successAddingRss');
-      // i18nInstance.t(`messages.${state.form.textStatus}`);
       form.reset();
       getElements.urlInput.focus();
       break;
@@ -56,10 +55,6 @@ const renderErrors = (error, i18nInstance) => { // 3 param could be state
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
     feedback.textContent = i18nInstance.t(`messages.${error}`);
-    //  i18nInstance.t(`messages.${state.form.textStatus}`)
-    // Любые тексты, которые выводятся в зависимости от
-    //  действий пользователя, не должны храниться в состоянии приложения.
-    // Эти тексты должны зависеть от состояния процессов:
   }
 };
 
@@ -123,7 +118,7 @@ const postsRender = (posts, state, i18nInstance) => {
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
     const a = document.createElement('a');
-    if (state.readedPostsId.includes(post.itemId)) {
+    if (state.readPostsId.includes(post.itemId)) {
       a.classList.add('fw-normal', 'link-secondary');
     } else {
       a.classList.add('fw-bold');
@@ -182,7 +177,7 @@ const render = (state) => (path, value) => {
     case 'form.processState':
       processStateHandler(value, i18nInstance);
       break;
-    case 'form.textStatus':
+    case 'form.errors':
       renderErrors(value, i18nInstance);
       break;
     case 'feeds':
@@ -191,10 +186,10 @@ const render = (state) => (path, value) => {
     case 'posts':
       postsRender(value, state, i18nInstance);
       break;
-    case 'modalPosts':
+    case 'modalPost':
       renderModal(value, state);
       break;
-    case 'readPostsId':
+    case 'readPostId':
       renderReadPosts(value);
       break;
     default:
@@ -204,5 +199,3 @@ const render = (state) => (path, value) => {
 const watchedState = (state) => onChange(state, render(state));
 
 export default watchedState;
-
-// // https://ru.hexlet.io/courses/js-frontend-architecture/lessons/i18n/theory_unit

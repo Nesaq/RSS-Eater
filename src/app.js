@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import axios from 'axios';
 import parser from './rssParser.js';
+import getUrlProxy from './getUrl.js';
 import watcher from './view.js';
 
 const validateUrl = (incomingUrl, urls) => yup
@@ -14,13 +15,13 @@ const app = () => {
   const state = {
     form: {
       processState: 'filling',
-      textStatus: '',
+      errors: '',
       incomingUrl: '',
       urls: [],
     },
     feeds: [],
     posts: [],
-    readedPostsId: [],
+    readPostsId: [],
   };
 
   const watchedState = watcher(state);
@@ -28,11 +29,11 @@ const app = () => {
 
   yup.setLocale({
     string: {
-      url: () => ({ key: 'notValidUrl' }),
+      url: 'notValidUrl',
     },
     mixed: {
-      notOneOf: () => ({ key: 'rssExistError' }),
-      required: () => ({ key: 'fieldRequired' }),
+      notOneOf: 'rssExistError',
+      required: 'fieldRequired',
     },
   });
 
@@ -46,33 +47,27 @@ const app = () => {
     validateUrl(state.form.incomingUrl, state.form.urls)
       .then(() => {
         state.form.urls.push(state.form.incomingUrl);
-        return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(state.form.incomingUrl)}`)
+        return axios.get(getUrlProxy(state.form.incomingUrl))
           .then((response) => {
             const { feed, posts } = parser(response);
             watchedState.posts = state.posts.concat(posts);
             watchedState.feeds = state.feeds.concat(feed);
-            watchedState.form.processState = 'goodCase';
-            watchedState.form.textStatus = '';
+            watchedState.form.processState = 'added';
           })
           .catch((err) => {
-            console.log(err);
-            console.log(err.message);
             watchedState.form.processState = 'error';
-            watchedState.form.textStatus = err.name;
+            watchedState.form.errors = err.name;
           });
       })
       .catch((err) => {
-        console.log(err);
-        const [{ key }] = err.errors;
-        console.log(key);
         watchedState.form.processState = 'error';
-        watchedState.form.textStatus = key;
+        watchedState.form.errors = err.errors;
       });
   });
   const contentUpdate = () => {
     setTimeout(() => {
       state.feeds.forEach(({ url }) => {
-        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+        axios.get(getUrlProxy(url))
           .then((response) => {
             const { posts } = parser(response);
             const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
@@ -82,24 +77,19 @@ const app = () => {
             contentUpdate();
           })
           .catch((err) => {
-            console.log(err);
-            // console.log(err.name);
             watchedState.form.processState = 'error';
-            watchedState.form.textStatus = err.name;
-            // TypeError:
-            // Cannot read properties of null (reading 'textContent')
+            watchedState.form.errors = err.name;
           });
       });
-      // contentUpdate();
     }, timerForUpdates);
   };
   contentUpdate();
 
   const postEl = document.querySelector('.posts');
   postEl.addEventListener('click', (e) => {
-    const readedLink = state.posts.filter(({ itemId }) => itemId === e.target.dataset.id);
-    watchedState.modalPosts = readedLink;
-    watchedState.readPostsId = state.readedPostsId.concat(e.target.dataset.id);
+    const clickOnPost = state.posts.filter(({ itemId }) => itemId === e.target.dataset.id);
+    watchedState.modalPost = clickOnPost;
+    watchedState.readPostId = state.readPostsId.concat(e.target.dataset.id);
   });
 };
 

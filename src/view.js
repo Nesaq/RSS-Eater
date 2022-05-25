@@ -49,7 +49,7 @@ const processStateHandler = (processState, i18nInstance) => {
   }
 };
 
-const renderErrors = (error, i18nInstance) => { // 3 param could be state
+const renderErrors = (error, i18nInstance) => {
   if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
@@ -114,6 +114,7 @@ const postsRender = (posts, state, i18nInstance) => {
   ulList.classList.add('list-group', 'border-0', 'rounded-0');
 
   posts.forEach((post) => {
+    // console.log(post);
     const liList = document.createElement('li');
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
@@ -144,17 +145,19 @@ const postsRender = (posts, state, i18nInstance) => {
   postsDiv.append(ulList);
 };
 
-const renderModal = (post) => {
+const renderModal = (itemId, state) => {
+  const itemIdPost = state.posts.find((post) => post.itemId === itemId);
+
   const title = getElements.modal.modalTitle;
   const body = getElements.modal.modalBody;
-  body.classList.add('text-break');
   const fullPost = getElements.modal.readButton;
-  title.textContent = post[0].itemTitle;
-  body.textContent = post[0].itemDesc;
-  fullPost.href = post[0].itemLink;
+
+  title.textContent = itemIdPost.itemTitle;
+  body.textContent = itemIdPost.itemDesc;
+  fullPost.href = itemIdPost.itemLink;
 };
 
-const renderReadPosts = (posts) => {
+const renderReadPostsId = (posts) => {
   posts.forEach((postId) => {
     const post = document.querySelector(`a[data-id="${postId}"]`);
     post.classList.remove('fw-bold');
@@ -163,6 +166,7 @@ const renderReadPosts = (posts) => {
 };
 
 const render = (state) => (path, value) => {
+  console.log(`PATH: ${path}`);
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
     lng: 'ru',
@@ -171,7 +175,6 @@ const render = (state) => (path, value) => {
       ru,
     },
   });
-  // спросить у наставника об объявлении  i18 внутри рендера
 
   switch (path) {
     case 'form.processState':
@@ -186,11 +189,11 @@ const render = (state) => (path, value) => {
     case 'posts':
       postsRender(value, state, i18nInstance);
       break;
-    case 'modalPost':
+    case 'modalPostItemId':
       renderModal(value, state);
       break;
-    case 'readPostId':
-      renderReadPosts(value);
+    case 'readPostsId':
+      renderReadPostsId(value);
       break;
     default:
       throw new Error(`Wrong path: ${path}`);

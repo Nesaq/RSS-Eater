@@ -1,9 +1,12 @@
 import * as yup from 'yup';
+import i18next from 'i18next';
+import onChange from 'on-change';
 import axios from 'axios';
 import _ from 'lodash';
 import parser from './rssParser.js';
 import getUrlProxy from './getUrl.js';
-import watcher from './view.js';
+import render from './view.js';
+import ru from './locales/ru.js';
 
 const validateUrl = (incomingUrl, urls) => yup
   .string()
@@ -12,7 +15,7 @@ const validateUrl = (incomingUrl, urls) => yup
   .required()
   .validate(incomingUrl);
 
-const app = () => {
+const app = (i18nInstance) => {
   const state = {
     form: {
       processState: 'filling',
@@ -25,7 +28,21 @@ const app = () => {
     readPostsId: [],
   };
 
-  const watchedState = watcher(state);
+  const getElements = {
+    form: document.querySelector('.rss-form'),
+    urlInput: document.getElementById('url-input'),
+    feedback: document.querySelector('.feedback'),
+    button: document.querySelector('button[aria-label=add]'),
+    feeds: document.querySelector('.feeds'),
+    posts: document.querySelector('.posts'),
+    modal: {
+      modalTitle: document.querySelector('.modal-title'),
+      modalBody: document.querySelector('.modal-body'),
+      readButton: document.querySelector('.full-article'),
+    },
+  };
+
+  const watchedState = onChange(state, render(state, i18nInstance, getElements));
   const timerForUpdates = 5000;
 
   yup.setLocale({
@@ -38,8 +55,7 @@ const app = () => {
     },
   });
 
-  const form = document.querySelector('.rss-form');
-  form.addEventListener('submit', (e) => {
+  getElements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.form.incomingUrl = formData.get('url');
@@ -47,14 +63,14 @@ const app = () => {
 
     validateUrl(state.form.incomingUrl, state.form.urls)
       .then(() => {
-        state.form.urls.push(state.form.incomingUrl);
-        return axios.get(getUrlProxy(state.form.incomingUrl))
+        axios.get(getUrlProxy(state.form.incomingUrl))
           .then((response) => {
             const { feed, posts } = parser(response);
             const postsWithId = posts.map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
-            watchedState.posts = state.posts.concat(postsWithId);
             watchedState.feeds = state.feeds.concat(feed);
+            watchedState.posts = state.posts.concat(postsWithId);
             watchedState.form.processState = 'added';
+            state.form.urls.push(state.form.incomingUrl);
           })
           .catch((err) => {
             watchedState.form.processState = 'error';
@@ -86,12 +102,23 @@ const app = () => {
   };
   contentUpdate();
 
-  const postEl = document.querySelector('.posts');
-  postEl.addEventListener('click', (e) => {
+  getElements.posts.addEventListener('click', (e) => {
     const readPostLink = state.posts.find((post) => post.itemId === e.target.dataset.id);
     watchedState.modalPostItemId = readPostLink.itemId;
     watchedState.readPostsId.push(e.target.dataset.id);
   });
 };
 
-export default app;
+const runApp = () => {
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng: 'ru',
+    debug: false,
+    resources: {
+      ru,
+    },
+  }).then(() => app(i18nInstance));
+};
+
+export default runApp;
+// https://lorem-rss.herokuapp.com/feed?unit=second&interval=10

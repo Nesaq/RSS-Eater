@@ -1,26 +1,8 @@
-import onChange from 'on-change';
-import i18next from 'i18next';
-import ru from './locales/ru.js';
+const processStateHandler = (processState, i18nInstance, getElements) => {
+  const {
+    button, form, feedback, urlInput,
+  } = getElements;
 
-const getElements = {
-  form: document.querySelector('.rss-form'),
-  urlInput: document.getElementById('url-input'),
-  feedback: document.querySelector('.feedback'),
-  button: document.querySelector('button[aria-label=add]'),
-  feeds: document.querySelector('.feeds'),
-  posts: document.querySelector('.posts'),
-  modal: {
-    modalTitle: document.querySelector('.modal-title'),
-    modalBody: document.querySelector('.modal-body'),
-    readButton: document.querySelector('.full-article'),
-  },
-};
-
-const {
-  form, urlInput, feedback, button,
-} = getElements;
-
-const processStateHandler = (processState, i18nInstance) => {
   switch (processState) {
     case 'filling':
       button.disabled = false;
@@ -49,7 +31,8 @@ const processStateHandler = (processState, i18nInstance) => {
   }
 };
 
-const renderErrors = (error, i18nInstance) => {
+const renderErrors = (error, i18nInstance, getElements) => {
+  const { urlInput, feedback } = getElements;
   if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
@@ -58,8 +41,10 @@ const renderErrors = (error, i18nInstance) => {
   }
 };
 
-const feedsRender = (feeds, i18nInstance) => {
-  getElements.feeds.innerHTML = '';
+const feedsRender = (feeds, i18nInstance, getElements) => {
+  const feedsEl = getElements.feeds;
+
+  feedsEl.innerHTML = '';
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
   getElements.feeds.prepend(feedsCard);
@@ -95,8 +80,10 @@ const feedsRender = (feeds, i18nInstance) => {
   titleDiv.append(listUL);
 };
 
-const postsRender = (posts, state, i18nInstance) => {
-  getElements.posts.innerHTML = '';
+const postsRender = (posts, state, i18nInstance, getElements) => {
+  const postsEl = getElements.posts;
+
+  postsEl.innerHTML = '';
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
   getElements.posts.prepend(postsDiv);
@@ -114,7 +101,6 @@ const postsRender = (posts, state, i18nInstance) => {
   ulList.classList.add('list-group', 'border-0', 'rounded-0');
 
   posts.forEach((post) => {
-    // console.log(post);
     const liList = document.createElement('li');
     liList.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
@@ -145,52 +131,42 @@ const postsRender = (posts, state, i18nInstance) => {
   postsDiv.append(ulList);
 };
 
-const renderModal = (itemId, state) => {
-  const itemIdPost = state.posts.find((post) => post.itemId === itemId);
+const renderModal = (itemId, state, getElements) => {
+  const openModal = state.posts.find((post) => post.itemId === itemId);
 
   const title = getElements.modal.modalTitle;
   const body = getElements.modal.modalBody;
   const fullPost = getElements.modal.readButton;
 
-  title.textContent = itemIdPost.itemTitle;
-  body.textContent = itemIdPost.itemDesc;
-  fullPost.href = itemIdPost.itemLink;
+  title.textContent = openModal.itemTitle;
+  body.textContent = openModal.itemDesc;
+  fullPost.href = openModal.itemLink;
 };
 
-const renderReadPostsId = (posts) => {
-  posts.forEach((postId) => {
-    const post = document.querySelector(`a[data-id="${postId}"]`);
+const renderReadPostsId = (idList) => {
+  idList.forEach((id) => {
+    const post = document.querySelector(`a[data-id="${id}"]`);
     post.classList.remove('fw-bold');
     post.classList.add('fw-normal', 'link-secondary');
   });
 };
 
-const render = (state) => (path, value) => {
-  console.log(`PATH: ${path}`);
-  const i18nInstance = i18next.createInstance();
-  i18nInstance.init({
-    lng: 'ru',
-    debug: false,
-    resources: {
-      ru,
-    },
-  });
-
+const render = (state, i18nInstance, getElements) => (path, value) => {
   switch (path) {
     case 'form.processState':
-      processStateHandler(value, i18nInstance);
+      processStateHandler(value, i18nInstance, getElements);
       break;
     case 'form.errors':
-      renderErrors(value, i18nInstance);
+      renderErrors(value, i18nInstance, getElements);
       break;
     case 'feeds':
-      feedsRender(value, i18nInstance);
+      feedsRender(value, i18nInstance, getElements);
       break;
     case 'posts':
-      postsRender(value, state, i18nInstance);
+      postsRender(value, state, i18nInstance, getElements);
       break;
     case 'modalPostItemId':
-      renderModal(value, state);
+      renderModal(value, state, getElements);
       break;
     case 'readPostsId':
       renderReadPostsId(value);
@@ -199,6 +175,5 @@ const render = (state) => (path, value) => {
       throw new Error(`Wrong path: ${path}`);
   }
 };
-const watchedState = (state) => onChange(state, render(state));
 
-export default watchedState;
+export default render;

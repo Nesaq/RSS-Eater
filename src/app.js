@@ -93,7 +93,6 @@ const app = (i18nInstance) => {
             const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
               .map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
             watchedState.posts = state.posts.concat(addNewPosts);
-            console.log(addNewPosts);
           })
           .catch((err) => {
             watchedState.form.processState = 'error';
@@ -108,7 +107,6 @@ const app = (i18nInstance) => {
   getElements.posts.addEventListener('click', (e) => {
     e.preventDefault();
     const readPostLink = state.posts.find((post) => post.itemId === e.target.dataset.id);
-    console.log(readPostLink);
     watchedState.modalPostItemId = readPostLink.itemId;
     watchedState.readPostsId.push(e.target.dataset.id);
   });

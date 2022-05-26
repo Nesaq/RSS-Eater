@@ -66,6 +66,7 @@ const app = (i18nInstance) => {
         axios.get(getUrlProxy(state.form.incomingUrl))
           .then((response) => {
             const { feed, posts } = parser(response);
+            feed.urlInput = state.form.incomingUrl;
             const postsWithId = posts.map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
             watchedState.feeds = state.feeds.concat(feed);
             watchedState.posts = state.posts.concat(postsWithId);
@@ -84,26 +85,30 @@ const app = (i18nInstance) => {
   });
   const contentUpdate = () => {
     setTimeout(() => {
-      state.feeds.forEach(({ url }) => {
-        axios.get(getUrlProxy(url))
+      state.feeds.forEach(({ urlInput }) => {
+        axios.get(getUrlProxy(urlInput))
           .then((response) => {
             const { posts } = parser(response);
             const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
-            const newPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink));
-            watchedState.posts = state.posts.concat(newPosts);
-            contentUpdate();
+            const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
+              .map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
+            watchedState.posts = state.posts.concat(addNewPosts);
+            console.log(addNewPosts);
           })
           .catch((err) => {
             watchedState.form.processState = 'error';
             watchedState.form.errors = err.name;
           });
       });
+      contentUpdate();
     }, timerForUpdates);
   };
   contentUpdate();
 
   getElements.posts.addEventListener('click', (e) => {
+    e.preventDefault();
     const readPostLink = state.posts.find((post) => post.itemId === e.target.dataset.id);
+    console.log(readPostLink);
     watchedState.modalPostItemId = readPostLink.itemId;
     watchedState.readPostsId.push(e.target.dataset.id);
   });
@@ -121,4 +126,3 @@ const runApp = () => {
 };
 
 export default runApp;
-// https://lorem-rss.herokuapp.com/feed?unit=second&interval=10

@@ -105,7 +105,6 @@ const app = (i18nInstance) => {
   contentUpdate();
 
   getElements.posts.addEventListener('click', (e) => {
-    e.preventDefault();
     const readPostLink = state.posts.find((post) => post.itemId === e.target.dataset.id);
     watchedState.modalPostItemId = readPostLink.itemId;
     watchedState.readPostsId.push(e.target.dataset.id);

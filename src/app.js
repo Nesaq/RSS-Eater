@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import axios from 'axios';
-import _ from 'lodash';
+import _, { stubString } from 'lodash';
 import parser from './rssParser.js';
 import getUrlProxy from './getUrl.js';
 import render from './view.js';
@@ -66,6 +66,7 @@ const app = (i18nInstance) => {
         axios.get(getUrlProxy(state.form.incomingUrl))
           .then((response) => {
             const { feed, posts } = parser(response);
+            feed.urlInput = state.form.incomingUrl;
             const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
             watchedState.feeds.push(feed);
             watchedState.posts = state.posts.concat(postsWithId);
@@ -84,17 +85,18 @@ const app = (i18nInstance) => {
   });
 
   const contentUpdate = () => {
-    state.form.urls.forEach((url) => {
-      axios.get(getUrlProxy(url))
+    setTimeout(() => {
+      const promises = state.feeds.map(({ urlInput }) => axios.get(getUrlProxy(urlInput))
         .then((response) => {
           const { posts } = parser(response);
           const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
           const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
             .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
           watchedState.posts = state.posts.concat(addNewPosts);
-        });
-    });
-    setTimeout(() => contentUpdate(), timerForUpdates);
+        }));
+      const promise = Promise.all(promises);
+      promise.then(() => setTimeout(contentUpdate, timerForUpdates));
+    }, timerForUpdates);
   };
   contentUpdate();
 

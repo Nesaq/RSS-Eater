@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import axios from 'axios';
-import _, { stubString } from 'lodash';
+import _ from 'lodash';
 import parser from './rssParser.js';
 import getUrlProxy from './getUrl.js';
 import render from './view.js';

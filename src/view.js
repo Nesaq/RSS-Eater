@@ -62,7 +62,6 @@ const feedsRender = (feeds, i18nInstance, elements) => {
   listUL.classList.add('list-group', 'border-0', 'rounded-0');
 
   feeds.forEach((feed) => {
-    console.log(feed);
     const liList = document.createElement('li');
     liList.classList.add('list-group-item', 'border-0', 'border-end-0');
 
@@ -82,7 +81,6 @@ const feedsRender = (feeds, i18nInstance, elements) => {
 };
 
 const postsRender = (posts, state, i18nInstance, elements) => {
-  // console.log(posts);
   const postsEl = elements.posts;
 
   postsEl.innerHTML = '';

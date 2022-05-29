@@ -5,8 +5,7 @@
 ### Workflow
 [![Nes workflow](https://github.com/Nesaq/frontend-project-lvl3/actions/workflows/my-workflow.yml/badge.svg)](https://github.com/Nesaq/frontend-project-lvl3/actions/workflows/my-workflow.yml)
 
-Visit site to check it out. [https://rss-eater.vercel.app/]
-
+Visit site to check it out. 
 ### Setup
 
 ```

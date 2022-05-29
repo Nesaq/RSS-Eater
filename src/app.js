@@ -28,7 +28,7 @@ const app = (i18nInstance) => {
     readPostsId: [],
   };
 
-  const getElements = {
+  const elements = {
     form: document.querySelector('.rss-form'),
     urlInput: document.getElementById('url-input'),
     feedback: document.querySelector('.feedback'),
@@ -42,7 +42,7 @@ const app = (i18nInstance) => {
     },
   };
 
-  const watchedState = onChange(state, render(state, i18nInstance, getElements));
+  const watchedState = onChange(state, render(state, i18nInstance, elements));
   const timerForUpdates = 5000;
 
   yup.setLocale({
@@ -55,7 +55,7 @@ const app = (i18nInstance) => {
     },
   });
 
-  getElements.form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.form.incomingUrl = formData.get('url');
@@ -66,9 +66,8 @@ const app = (i18nInstance) => {
         axios.get(getUrlProxy(state.form.incomingUrl))
           .then((response) => {
             const { feed, posts } = parser(response);
-            feed.urlInput = state.form.incomingUrl;
-            const postsWithId = posts.map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
-            watchedState.feeds = state.feeds.concat(feed);
+            const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
+            watchedState.feeds.push(feed);
             watchedState.posts = state.posts.concat(postsWithId);
             watchedState.form.processState = 'added';
             state.form.urls.push(state.form.incomingUrl);
@@ -83,31 +82,26 @@ const app = (i18nInstance) => {
         watchedState.form.errors = err.errors;
       });
   });
+
   const contentUpdate = () => {
-    setTimeout(() => {
-      state.feeds.forEach(({ urlInput }) => {
-        axios.get(getUrlProxy(urlInput))
-          .then((response) => {
-            const { posts } = parser(response);
-            const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
-            const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
-              .map((post) => _.merge(post, { itemId: _.uniqueId('post_') }));
-            watchedState.posts = state.posts.concat(addNewPosts);
-          })
-          .catch((err) => {
-            watchedState.form.processState = 'error';
-            watchedState.form.errors = err.name;
-          });
-      });
-      contentUpdate();
-    }, timerForUpdates);
+    state.form.urls.forEach((url) => {
+      axios.get(getUrlProxy(url))
+        .then((response) => {
+          const { posts } = parser(response);
+          const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
+          const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
+            .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
+          watchedState.posts = state.posts.concat(addNewPosts);
+        });
+    });
+    setTimeout(() => contentUpdate(), timerForUpdates);
   };
   contentUpdate();
 
-  getElements.posts.addEventListener('click', (e) => {
-    const readPostLink = state.posts.find((post) => post.itemId === e.target.dataset.id);
-    watchedState.modalPostItemId = readPostLink.itemId;
-    watchedState.readPostsId.push(e.target.dataset.id);
+  elements.posts.addEventListener('click', (e) => {
+    const postID = e.target.dataset.id;
+    watchedState.modalPostItemId = postID;
+    watchedState.readPostsId.push(postID);
   });
 };
 

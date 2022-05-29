@@ -1,7 +1,7 @@
-const processStateHandler = (processState, i18nInstance, getElements) => {
+const processStateHandler = (processState, i18nInstance, elements) => {
   const {
     button, form, feedback, urlInput,
-  } = getElements;
+  } = elements;
 
   switch (processState) {
     case 'filling':
@@ -20,7 +20,7 @@ const processStateHandler = (processState, i18nInstance, getElements) => {
       feedback.classList.add('text-success');
       feedback.textContent = i18nInstance.t('messages.successAddingRss');
       form.reset();
-      getElements.urlInput.focus();
+      elements.urlInput.focus();
       break;
     case 'error':
       button.disabled = false;
@@ -31,8 +31,8 @@ const processStateHandler = (processState, i18nInstance, getElements) => {
   }
 };
 
-const renderErrors = (error, i18nInstance, getElements) => {
-  const { urlInput, feedback } = getElements;
+const renderErrors = (error, i18nInstance, elements) => {
+  const { urlInput, feedback } = elements;
   if (error !== '') {
     urlInput.classList.add('is-invalid');
     feedback.classList.remove('text-success');
@@ -41,13 +41,13 @@ const renderErrors = (error, i18nInstance, getElements) => {
   }
 };
 
-const feedsRender = (feeds, i18nInstance, getElements) => {
-  const feedsEl = getElements.feeds;
+const feedsRender = (feeds, i18nInstance, elements) => {
+  const feedsEl = elements.feeds;
 
   feedsEl.innerHTML = '';
   const feedsCard = document.createElement('div');
   feedsCard.classList.add('card', 'border-0');
-  getElements.feeds.prepend(feedsCard);
+  elements.feeds.prepend(feedsCard);
 
   const titleDiv = document.createElement('div');
   titleDiv.classList.add('card-body');
@@ -62,6 +62,7 @@ const feedsRender = (feeds, i18nInstance, getElements) => {
   listUL.classList.add('list-group', 'border-0', 'rounded-0');
 
   feeds.forEach((feed) => {
+    console.log(feed);
     const liList = document.createElement('li');
     liList.classList.add('list-group-item', 'border-0', 'border-end-0');
 
@@ -80,13 +81,14 @@ const feedsRender = (feeds, i18nInstance, getElements) => {
   titleDiv.append(listUL);
 };
 
-const postsRender = (posts, state, i18nInstance, getElements) => {
-  const postsEl = getElements.posts;
+const postsRender = (posts, state, i18nInstance, elements) => {
+  // console.log(posts);
+  const postsEl = elements.posts;
 
   postsEl.innerHTML = '';
   const postsDiv = document.createElement('div');
   postsDiv.classList.add('card', 'border-0');
-  getElements.posts.prepend(postsDiv);
+  elements.posts.prepend(postsDiv);
 
   const divTitle = document.createElement('div');
   divTitle.classList.add('card-body');
@@ -131,12 +133,12 @@ const postsRender = (posts, state, i18nInstance, getElements) => {
   postsDiv.append(ulList);
 };
 
-const renderModal = (itemId, state, getElements) => {
+const renderModal = (itemId, state, elements) => {
   const openModal = state.posts.find((post) => post.itemId === itemId);
 
-  const title = getElements.modal.modalTitle;
-  const body = getElements.modal.modalBody;
-  const fullPost = getElements.modal.readButton;
+  const title = elements.modal.modalTitle;
+  const body = elements.modal.modalBody;
+  const fullPost = elements.modal.readButton;
 
   title.textContent = openModal.itemTitle;
   body.textContent = openModal.itemDesc;
@@ -151,22 +153,22 @@ const renderReadPostsId = (idList) => {
   });
 };
 
-const render = (state, i18nInstance, getElements) => (path, value) => {
+const render = (state, i18nInstance, elements) => (path, value) => {
   switch (path) {
     case 'form.processState':
-      processStateHandler(value, i18nInstance, getElements);
+      processStateHandler(value, i18nInstance, elements);
       break;
     case 'form.errors':
-      renderErrors(value, i18nInstance, getElements);
+      renderErrors(value, i18nInstance, elements);
       break;
     case 'feeds':
-      feedsRender(value, i18nInstance, getElements);
+      feedsRender(value, i18nInstance, elements);
       break;
     case 'posts':
-      postsRender(value, state, i18nInstance, getElements);
+      postsRender(value, state, i18nInstance, elements);
       break;
     case 'modalPostItemId':
-      renderModal(value, state, getElements);
+      renderModal(value, state, elements);
       break;
     case 'readPostsId':
       renderReadPostsId(value);

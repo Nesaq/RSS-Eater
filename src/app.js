@@ -13,7 +13,6 @@ const app = (i18nInstance) => {
     form: {
       processState: 'filling',
       errors: '',
-      // urls: [],
     },
     feeds: [],
     posts: [],
@@ -60,11 +59,10 @@ const app = (i18nInstance) => {
 
     validateUrl.validate(url)
       .then(() => {
+        watchedState.form.processState = 'pending';
         axios.get(getUrlProxy(url))
           .then((response) => {
-            watchedState.form.processState = 'pending';
             const { feed, posts } = parser(response, url);
-            // console.log(feed);
             const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
             watchedState.feeds.push(feed);
             watchedState.posts = state.posts.concat(postsWithId);
@@ -90,7 +88,6 @@ const app = (i18nInstance) => {
           const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
             .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
           watchedState.posts = state.posts.concat(addNewPosts);
-          console.log(state.feeds);
         }));
       const promise = Promise.all(promises);
       promise.then(() => setTimeout(contentUpdate, timerForUpdates));

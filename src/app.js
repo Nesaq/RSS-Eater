@@ -59,20 +59,18 @@ const app = (i18nInstance) => {
       .required();
 
     validateUrl.validate(url)
-      .then(() => {
-        axios.get(getUrlProxy(url))
-          .then((response) => {
-            const { feed, posts } = parser(response, url);
-            const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
-            watchedState.feeds.push(feed);
-            watchedState.posts = state.posts.concat(postsWithId);
-            watchedState.form.processState = 'added';
-          })
-          .catch((err) => {
-            watchedState.form.processState = 'error';
-            watchedState.form.errors = err.name;
-          });
-      })
+      .then(() => axios.get(getUrlProxy(url))
+        .then((response) => {
+          const { feed, posts } = parser(response, url);
+          const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
+          watchedState.feeds.push(feed);
+          watchedState.posts = [...postsWithId, ...state.posts];
+          watchedState.form.processState = 'added';
+        })
+        .catch((err) => {
+          watchedState.form.processState = 'error';
+          watchedState.form.errors = err.name;
+        }))
       .catch((err) => {
         watchedState.form.processState = 'error';
         watchedState.form.errors = err.errors;
@@ -87,7 +85,7 @@ const app = (i18nInstance) => {
           const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
           const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
             .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
-          watchedState.posts = state.posts.concat(addNewPosts);
+          watchedState.posts = [...addNewPosts, ...state.posts];
         }));
       const promise = Promise.all(promises);
       promise.then(() => setTimeout(contentUpdate, timerForUpdates));

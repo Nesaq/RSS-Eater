@@ -3,9 +3,9 @@ const rssParser = (response, url) => {
   const data = parser.parseFromString(response.data.contents, 'application/xml');
   const title = data.querySelector('title');
   const description = data.querySelector('description');
-  const parseErr = data.querySelector('parsererror');
+  const parserErr = data.querySelector('parsererror');
 
-  if (parseErr) {
+  if (parserErr) {
     throw new Error('TypeError').firstChild.textContent;
   }
 
@@ -14,6 +14,7 @@ const rssParser = (response, url) => {
     feedTitle: title.textContent,
     feedDesc: description.textContent,
   };
+
   const items = data.querySelectorAll('item');
   const posts = Array.from(items).map((item) => {
     const itemTitle = item.querySelector('title');

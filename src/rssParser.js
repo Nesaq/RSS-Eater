@@ -1,9 +1,10 @@
-const rssParser = (response) => {
+const rssParser = (response, url) => {
   const parser = new DOMParser();
   const data = parser.parseFromString(response.data.contents, 'application/xml');
   const title = data.querySelector('title');
   const description = data.querySelector('description');
   const feed = {
+    url,
     feedTitle: title.textContent,
     feedDesc: description.textContent,
   };

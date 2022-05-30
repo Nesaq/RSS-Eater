@@ -8,20 +8,12 @@ import getUrlProxy from './getUrl.js';
 import render from './view.js';
 import ru from './locales/ru.js';
 
-const validateUrl = (incomingUrl, urls) => yup
-  .string()
-  .url()
-  .notOneOf(urls)
-  .required()
-  .validate(incomingUrl);
-
 const app = (i18nInstance) => {
   const state = {
     form: {
       processState: 'filling',
       errors: '',
-      incomingUrl: '',
-      urls: [],
+      // urls: [],
     },
     feeds: [],
     posts: [],
@@ -58,20 +50,25 @@ const app = (i18nInstance) => {
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    state.form.incomingUrl = formData.get('url');
-    watchedState.form.processState = 'pending';
+    const url = formData.get('url');
 
-    validateUrl(state.form.incomingUrl, state.form.urls)
+    const validateUrl = yup
+      .string()
+      .url()
+      .notOneOf(watchedState.feeds.map((feed) => feed.url))
+      .required();
+
+    validateUrl.validate(url)
       .then(() => {
-        axios.get(getUrlProxy(state.form.incomingUrl))
+        axios.get(getUrlProxy(url))
           .then((response) => {
-            const { feed, posts } = parser(response);
-            feed.urlInput = state.form.incomingUrl;
+            watchedState.form.processState = 'pending';
+            const { feed, posts } = parser(response, url);
+            // console.log(feed);
             const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
             watchedState.feeds.push(feed);
             watchedState.posts = state.posts.concat(postsWithId);
             watchedState.form.processState = 'added';
-            state.form.urls.push(state.form.incomingUrl);
           })
           .catch((err) => {
             watchedState.form.processState = 'error';
@@ -86,13 +83,14 @@ const app = (i18nInstance) => {
 
   const contentUpdate = () => {
     setTimeout(() => {
-      const promises = state.feeds.map(({ urlInput }) => axios.get(getUrlProxy(urlInput))
+      const promises = state.feeds.map(({ url }) => axios.get(getUrlProxy(url))
         .then((response) => {
-          const { posts } = parser(response);
+          const { posts } = parser(response, url);
           const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
           const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
             .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
           watchedState.posts = state.posts.concat(addNewPosts);
+          console.log(state.feeds);
         }));
       const promise = Promise.all(promises);
       promise.then(() => setTimeout(contentUpdate, timerForUpdates));

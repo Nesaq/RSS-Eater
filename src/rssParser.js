@@ -3,6 +3,12 @@ const rssParser = (response, url) => {
   const data = parser.parseFromString(response.data.contents, 'application/xml');
   const title = data.querySelector('title');
   const description = data.querySelector('description');
+  const parseErr = data.querySelector('parsererror');
+
+  if (parseErr) {
+    throw new Error('TypeError').firstChild.textContent;
+  }
+
   const feed = {
     url,
     feedTitle: title.textContent,

@@ -50,6 +50,7 @@ const app = (i18nInstance) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
+    watchedState.form.processState = 'pending';
 
     const validateUrl = yup
       .string()
@@ -59,7 +60,6 @@ const app = (i18nInstance) => {
 
     validateUrl.validate(url)
       .then(() => {
-        watchedState.form.processState = 'pending';
         axios.get(getUrlProxy(url))
           .then((response) => {
             const { feed, posts } = parser(response, url);

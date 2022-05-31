@@ -14,7 +14,7 @@ Make install
  Rss Eater - this is a handy, minimalist RSS-aggregator. 
 Upload your favorite RSS-format link in the input box and you get tracked content on a single page. 
 ### Here is a link to the project
-[RSS Eater](rss-eater.vercel.app)
+[RSS Eater](rss-eater-nesaq.vercel.app)
 
 ### The following tools and approaches were used in creating the application:
 

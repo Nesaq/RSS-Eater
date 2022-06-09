@@ -22,7 +22,7 @@ const rssParser = (response, url) => {
     const itemLink = item.querySelector('link');
     return {
       itemTitle: itemTitle.textContent,
-      itemDesc: itemDesc.textContent,
+      itemDesc: itemDesc.textContent.replace(/<[^>]*>?/gm, ''),
       itemLink: itemLink.textContent,
     };
   });

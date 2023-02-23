@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import i18next from 'i18next';
 import onChange from 'on-change';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import parser from './rssParser.js';
 import getUrlProxy from './getUrl.js';
@@ -70,6 +70,8 @@ const app = (i18nInstance) => {
       watchedState.form.errors = error.errors;
       if (error instanceof TypeError) {
         elements.feedback.textContent = i18nInstance.t('messages.TypeError');
+      } else if (error instanceof AxiosError) {
+        elements.feedback.textContent = i18nInstance.t('messages.AxiosError');
       }
     }
   };

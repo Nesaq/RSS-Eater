@@ -66,7 +66,7 @@ const app = (i18nInstance) => {
       watchedState.form.processState = 'added';
     } catch (error) {
       watchedState.form.processState = 'error';
-      watchedState.form.errors = error.message;
+      watchedState.form.errors = error.name;
     }
   };
 

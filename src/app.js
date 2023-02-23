@@ -46,55 +46,51 @@ const app = (i18nInstance) => {
     },
   });
 
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
     const url = formData.get('url');
     watchedState.form.processState = 'pending';
 
-    const validateUrl = yup
-      .string()
-      .url()
-      .notOneOf(watchedState.feeds.map((feed) => feed.url))
-      .required();
+    const validateUrl = yup.object().shape({
+      url: yup.string().url().notOneOf(watchedState.feeds.map((feed) => feed.url)).required(),
+    });
 
-    validateUrl.validate(url)
-      .then(() => axios.get(getUrlProxy(url))
-        .then((response) => {
-          const { feed, posts } = parser(response, url);
-          const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
-          watchedState.feeds.push(feed);
-          watchedState.posts = [...postsWithId, ...state.posts];
-          watchedState.form.processState = 'added';
-        })
-        .catch((err) => {
-          watchedState.form.processState = 'error';
-          watchedState.form.errors = err.name;
-        }))
-      .catch((err) => {
-        watchedState.form.processState = 'error';
-        watchedState.form.errors = err.errors;
-      });
-  });
+    try {
+      await validateUrl.validate({ url });
+      const response = await axios.get(getUrlProxy(url));
+      const { feed, posts } = parser(response, url);
+      const postsWithId = posts.map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
+      watchedState.feeds.push(feed);
+      watchedState.posts = [...postsWithId, ...state.posts];
+      watchedState.form.processState = 'added';
+    } catch (error) {
+      watchedState.form.processState = 'error';
+      watchedState.form.errors = error.message;
+    }
+  };
 
-  const contentUpdate = () => {
-    setTimeout(() => {
-      const promises = state.feeds.map(({ url }) => axios.get(getUrlProxy(url))
-        .then((response) => {
-          const { posts } = parser(response, url);
-          const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
-          const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
-            .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
-          watchedState.posts = [...addNewPosts, ...state.posts];
-        }));
-      const promise = Promise.all(promises);
-      promise.then(() => setTimeout(contentUpdate, timerForUpdates));
-    }, timerForUpdates);
+  elements.form.addEventListener('submit', handleSubmit);
+
+  const contentUpdate = async () => {
+    await Promise.all(state.feeds.map(async ({ url }) => {
+      try {
+        const response = await axios.get(getUrlProxy(url));
+        const { posts } = parser(response, url);
+        const addedPostLinks = state.posts.map(({ itemLink }) => itemLink);
+        const addNewPosts = posts.filter(({ itemLink }) => !addedPostLinks.includes(itemLink))
+          .map((post) => ({ ...post, itemId: _.uniqueId('post_') }));
+        watchedState.posts = [...addNewPosts, ...state.posts];
+      } catch (error) {
+        console.error(error);
+      }
+    }));
+    setTimeout(contentUpdate, timerForUpdates);
   };
   contentUpdate();
 
-  elements.posts.addEventListener('click', (e) => {
-    const postID = e.target.dataset.id;
+  elements.posts.addEventListener('click', ({ target }) => {
+    const postID = target.dataset.id;
     watchedState.modalPostItemId = postID;
     watchedState.readPostsId.push(postID);
   });

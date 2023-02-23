@@ -66,7 +66,6 @@ const app = (i18nInstance) => {
       watchedState.form.processState = 'added';
     } catch (error) {
       watchedState.form.processState = 'error';
-      watchedState.form.errors = error.name;
       watchedState.form.errors = error.errors;
       if (error instanceof TypeError) {
         elements.feedback.textContent = i18nInstance.t('messages.TypeError');
